@@ -1,0 +1,7 @@
+xmail_version: "xmail-1.27"
+xmail_source_download_url: "http://xmailserver.org/xmail-1.27.tar.gz"
+xmail_source_checksum: "sha256:e91341b779ffd3d70af6f00028bcd7f65ae664fedf947a27c42311102a84784e"
+xmail_install_dir: "/var/lib/xmail"
+xmail_start_script: "/usr/local/bin/xmail"
+xmail_pid_dir: "/run"
+xmail_cmd_line: "Md -B- -Pl -Sl -Fl -Cl -Ll -Ql -Qg -Yl -CI 127.0.0.1"

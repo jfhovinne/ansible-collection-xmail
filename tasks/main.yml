@@ -1,0 +1,97 @@
+---
+- name: Install dependencies
+  apt:
+    pkg:
+      - build-essential
+      - curl
+      - git
+      - inetutils-syslogd
+      - libssl-dev
+  become: true
+
+- name: Check if XMail archive is already downloaded
+  stat:
+    path: /tmp/xmail.tar.gz
+  register: __xmail_archive
+
+- name: Download XMail archive
+  get_url:
+    url: "{{ xmail_source_download_url }}"
+    dest: /tmp/xmail.tar.gz
+    checksum: "{{ xmail_source_checksum }}"
+  when: not __xmail_archive.stat.exists
+
+- name: Ensure XMail temp folder exists
+  file:
+    path: /tmp/xmail
+    state: directory
+
+- name: Extract XMail archive
+  unarchive:
+    src: /tmp/xmail.tar.gz
+    dest: /tmp/xmail
+    remote_src: yes
+
+- name: Remove XMail archive
+  file:
+    path: /tmp/xmail.tar.gz
+    state: absent
+
+- name: Compile XMail
+  make:
+    chdir: "/tmp/xmail/{{ xmail_version }}"
+    file: Makefile.lnx
+
+- name: Ensure installation folder does not exist
+  file:
+    path: "{{ xmail_install_dir }}"
+    state: absent
+  become: true
+
+- name: Move XMail MailRoot to installation folder
+  shell: "mv /tmp/xmail/{{ xmail_version }}/MailRoot {{ xmail_install_dir }}"
+  become: true
+
+- name: Remove object files
+  shell: "rm -rf /tmp/xmail/{{ xmail_version }}/bin/*.o"
+
+- name: Move XMail bin folder to installation folder
+  shell: "mv /tmp/xmail/{{ xmail_version }}/bin {{ xmail_install_dir }}"
+  become: true
+
+- name: Change XMail files ownership
+  file:
+    path: "{{ xmail_install_dir }}"
+    state: directory
+    owner: root
+    group: root
+    recurse: yes
+  become: true
+
+- name: Delete temp folder
+  file:
+    path: /tmp/xmail
+    state: absent
+
+- name: Copy service configuration file
+  template:
+    src: xmail.service.j2
+    dest: /etc/systemd/system/xmail.service
+    owner: root
+    group: root
+  become: true
+
+- name: Copy start script
+  template:
+    src: xmail.j2
+    dest: "{{ xmail_start_script }}"
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Enable XMail service
+  systemd:
+    name: xmail
+    enabled: yes
+  become: true

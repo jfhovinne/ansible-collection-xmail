@@ -1,0 +1,14 @@
+[Unit]
+Description=XMail server
+After=network.target
+
+[Service]
+Type=forking
+User=root
+ExecStart={{ xmail_start_script }}
+Restart=on-failure
+PIDFile={{ xmail_pid_dir }}/XMail.pid
+KillSignal=INT
+
+[Install]
+WantedBy=multi-user.target

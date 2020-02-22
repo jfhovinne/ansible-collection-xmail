@@ -1,0 +1,13 @@
+namespace: jfhovinne
+name: xmail
+version: 1.0.0
+readme: README.md
+authors:
+- jfhovinne
+description: a collection to install and manage XMail server
+license:
+- GPL-2.0-or-later
+license_file: ''
+tags: []
+dependencies: {}
+repository: https://github.com/jfhovinne/ansible-collection-xmail.git
